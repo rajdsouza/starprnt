@@ -25,7 +25,7 @@ static NSString *dataCallbackId = nil;
 - (void)connect:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
             NSString *printerPort = nil;
-            NSString *emulation = @"StarLine";
+            NSString *emulation = @"StarPRNT";
             NSNumber *hasBarcodeReader = nil;
         
         if (command.arguments.count > 0) {
@@ -33,27 +33,23 @@ static NSString *dataCallbackId = nil;
             emulation = [command.arguments objectAtIndex:1];
             hasBarcodeReader = [command.arguments objectAtIndex:2];
         }
-        NSString *portSettings = [self getPortSettingsOption:emulation];
         
-        if (printerPort != nil && printerPort != (id)[NSNull null]){
-            if ([hasBarcodeReader isEqual:@(YES)]) {
-                _printerManager = [[StarIoExtManager alloc] initWithType:StarIoExtManagerTypeWithBarcodeReader
-                                                                portName:printerPort
-                                                            portSettings:portSettings
-                                                         ioTimeoutMillis:10000];
-            } else {
-            _printerManager = [[StarIoExtManager alloc] initWithType:StarIoExtManagerTypeStandard
-                                                              portName:printerPort
-                                                          portSettings:portSettings
-                                                       ioTimeoutMillis:10000];
-            }
+        
+        NSLog(@"Checking printterPort %@", printerPort);
+        
+        
+        NSString *portSettings = @"Portable";
+        
             
-            _printerManager.delegate = self;
-        }
+        _printerManager = [[StarIoExtManager alloc] initWithType:StarIoExtManagerTypeStandard
+                            portName:printerPort
+                            portSettings:portSettings
+                            ioTimeoutMillis:10000];
+        
+    	_printerManager.delegate = self;
 
-        if (_printerManager.port != nil) {
-            [_printerManager disconnect];
-        }
+		NSLog(@"Checking printer Port variable %@, and printterPort %@",portSettings, printerPort );
+
 
         BOOL connectResult = NO;
         
@@ -61,6 +57,8 @@ static NSString *dataCallbackId = nil;
             connectResult = [_printerManager connect];
         }
 
+        NSLog(@"Connect result is %@",connectResult);
+        
         CDVPluginResult *result = nil;
 
         if (connectResult == YES) {
@@ -429,7 +427,7 @@ static NSString *dataCallbackId = nil;
     [self.commandDelegate runInBackground:^{
         
         NSString *content = nil;
-        NSString *emulation = @"StarLine";
+        NSString *emulation = @"StarPRNT";
         
         if (command.arguments.count > 0) {
             content = [command.arguments objectAtIndex:0];
@@ -453,7 +451,7 @@ static NSString *dataCallbackId = nil;
         NSStringEncoding encoding = NSWindowsCP1252StringEncoding;
         NSString *content = nil;
         NSString *receiptid = nil;
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         
         if (command.arguments.count > 0) {
             content = [command.arguments objectAtIndex:0];
@@ -483,7 +481,7 @@ static NSString *dataCallbackId = nil;
     [self.commandDelegate runInBackground:^{
         NSStringEncoding encoding = NSWindowsCP1252StringEncoding;
         NSString *content = nil;
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         
 
         if (command.arguments.count > 0) {
@@ -652,7 +650,7 @@ static NSString *dataCallbackId = nil;
 - (void)printTicket:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         NSStringEncoding encoding = NSWindowsCP1252StringEncoding;
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         NSString *content = nil;
         
         if (command.arguments.count > 0) {
@@ -729,7 +727,7 @@ static NSString *dataCallbackId = nil;
 
 - (void)hardReset:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         
         unsigned char hardReset[] = {0x1B, 0x3F, 0x0A, 0x00};
         [builder appendBytes:hardReset length:sizeof(hardReset)];
@@ -740,7 +738,7 @@ static NSString *dataCallbackId = nil;
 
 - (void)activateBlackMarkSensor:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         
         unsigned char setBit[] = {0x1B, 0x1D, 0x23, 0x2B, 0x31, 0x30, 0x31, 0x30, 0x30, 0x0A, 0x00};
         unsigned char writeReset[] = {0x1B, 0x1D, 0x23, 0x57, 0x30, 0x30, 0x30, 0x30, 0x30, 0x0A, 0x00};
@@ -754,7 +752,7 @@ static NSString *dataCallbackId = nil;
 
 - (void)cancelBlackMarkSensor:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         
         unsigned char clearBit[] = {0x1B, 0x1D, 0x23, 0x2D, 0x31, 0x30, 0x31, 0x30, 0x30, 0x0A, 0x00};
         unsigned char writeReset[] = {0x1B, 0x1D, 0x23, 0x57, 0x30, 0x30, 0x30, 0x30, 0x30, 0x0A, 0x00};
@@ -768,7 +766,7 @@ static NSString *dataCallbackId = nil;
 
 - (void)setToDefaultSettings:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
-        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarLine];
+        ISCBBuilder *builder = [StarIoExt createCommandBuilder:StarIoExtEmulationStarPRNT];
         
         unsigned char defaultSettings[] = {0x1B, 0x1D, 0x23, 0x2A, 0x30, 0x30, 0x30, 0x30, 0x30, 0x0A, 0x00};
         unsigned char writeReset[] = {0x1B, 0x1D, 0x23, 0x57, 0x30, 0x30, 0x30, 0x30, 0x30, 0x0A, 0x00};
@@ -1096,7 +1094,7 @@ static NSString *dataCallbackId = nil;
     }else if([emulation isEqualToString:@"EscPos"]){
         portSettings = [@"escpos" stringByAppendingString:portSettings];
     }else if([emulation isEqualToString:@"StarPRNT"] || [emulation isEqualToString:@"StarPRNTL"]){
-        portSettings = [@"Portable;l" stringByAppendingString:portSettings];
+        portSettings = [@"Portable" stringByAppendingString:portSettings];
     }
     return portSettings;
 }
@@ -1104,12 +1102,12 @@ static NSString *dataCallbackId = nil;
     
     if([emulation isEqualToString:@"StarPRNT"]) return StarIoExtEmulationStarPRNT;
     else if ([emulation isEqualToString:@"StarPRNTL"]) return StarIoExtEmulationStarPRNTL;
-    else if ([emulation isEqualToString:@"StarLine"]) return StarIoExtEmulationStarLine;
+    else if ([emulation isEqualToString:@"StarPRNT"]) return StarIoExtEmulationStarPRNT;
     else if ([emulation isEqualToString:@"StarGraphic"]) return StarIoExtEmulationStarGraphic;
     else if ([emulation isEqualToString:@"EscPos"]) return StarIoExtEmulationEscPos;
     else if ([emulation isEqualToString:@"EscPosMobile"]) return StarIoExtEmulationEscPosMobile;
     else if ([emulation isEqualToString:@"StarDotImpact"]) return StarIoExtEmulationStarDotImpact;
-    else return StarIoExtEmulationStarLine;
+    else return StarIoExtEmulationStarPRNT;
 }
 - (UIImage *)imageWithString:(NSString *)string font:(UIFont *)font width:(CGFloat)width {
     NSDictionary *attributeDic = @{NSFontAttributeName:font};

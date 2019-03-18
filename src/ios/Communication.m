@@ -199,11 +199,14 @@
             
             [port beginCheckedBlock:&printerStatus :2];
             
+            NSLog(@"Following are the details.. %@", printerStatus);
+            
             if (printerStatus.offline == SM_TRUE) {
                 title   = @"Printer Error";
                 message = @"Printer is offline (BeginCheckedBlock)";
                 break;
             }
+            
             
             NSDate *startDate = [NSDate date];
             
